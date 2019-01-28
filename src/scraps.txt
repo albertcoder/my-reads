@@ -1,0 +1,292 @@
+Search component scraps:
+
+-----------------------------------
+
+import React, { Component } from 'react'
+import { Link } from 'react-router-dom'
+import * as BooksAPI from './BooksAPI'
+import escapeRegExp from 'escape-string-regexp'
+import sortBy from 'sort-by'
+
+let searchResults = []
+let query;
+
+class Search extends Component {
+
+    state = {
+        // query: '',
+        searchResults: []
+    }
+   
+    // updateQuery = (query) => {
+    //     this.setState({query: query.trim()})
+    //     // console.log(this.state.query)
+    //     // this.updateSearchResults()
+    //     // console.log(this.state.searchResults)
+    // }
+
+    // updateQuery = (newText) => {
+    //     query = newText;
+    //     this.updateSearchResults(query);
+    // }
+
+    updateSearchResults = (query) => {
+        BooksAPI.search(query).then((matches) => {
+            console.log(matches)
+            if (matches == undefined) {
+                this.setState({searchResults: ''})
+            } else if 
+ (matches.error || matches === undefined) {
+                this.setState({searchResults: ''})
+            } else {
+                this.setState({searchResults: matches})
+            }
+            // this.setState({searchResults: matches})
+            // searchResults = this.state.searchResults;
+            // console.log(searchResults);
+            // } else {
+            //     this.setState({searchResults: ''});
+            // }
+        })
+    }
+
+
+    render () {
+
+        if (this.state.query) {
+            // this.updateSearchResults();
+            // const match = new RegExp(escapeRegExp(this.state.query), 'i')
+            BooksAPI.search(this.state.query).then((matches) => {
+                searchResults = matches;
+                console.log(searchResults);
+            })
+        }
+
+        if(searchResults) {
+            searchResults.sort(sortBy('title'))
+        }
+
+        return(
+            
+            <div className="search-books">
+              <div className="search-books-bar">
+                <Link
+                    className="close-search"
+                    to="/"
+                    > Bookshelf </Link>
+                <div className="search-books-input-wrapper">
+                  {/*
+                    NOTES: The search from BooksAPI is limited to a particular set of search terms.
+                    You can find these search terms here:
+                    https://github.com/udacity/reactnd-project-myreads-starter/blob/master/SEARCH_TERMS.md
+  
+                    However, remember that the BooksAPI.search method DOES search by title or author. So, don't worry if
+                    you don't find a specific author or title. Every search is limited by search terms.
+                  */}
+                  <input 
+                    type="text" 
+                    placeholder="Search by title or author"
+                    value={this.state.updateSearchResults}
+                    onChange={(event) => this.updateSearchResults(event.target.value)}
+                  />
+  
+                </div>
+              </div>
+              <div className="search-books-results">
+              {/* <p>{this.state.query}{searchResults[0].title}</p>  */}
+              {/* {JSON.stringify(this.state), console.log(searchResults)} */}
+                <ol className="books-grid">
+                  
+                  <div className="bookshelf">
+                      <h2 className="bookshelf-title">Search Results</h2>
+                      <div className="bookshelf-books">
+                      {this.state.searchResults.length !== 0 && (
+                          <ol className="books-grid">
+                            
+                            
+                                
+                                {this.state.searchResults.map((book) => (
+                                  <li key={book.title} className="search-result-list-item">
+                                      <div className="book">
+                                      <div className="book-top">
+                                            {book.imageLinks !== undefined && ( 
+                                          <div className="book-cover" style={{ width: 128, height: 193, backgroundImage: `url(${book.imageLinks.smallThumbnail})`}}></div>
+                                            )}
+                                          <div className="book-shelf-changer">
+                                          <select>
+                                              <option value="move" disabled>Move to...</option>
+                                              <option value="currentlyReading">Currently Reading</option>
+                                              <option value="wantToRead">Want to Read</option>
+                                              <option value="read">Read</option>
+                                              <option value="none">None</option>
+                                          </select>
+                                          </div>
+                                        </div>
+                                        <div className="book-title">{book.title}</div>
+                                        {book.authors !== undefined && (
+                                            <div className="book-authors">{book.authors.map((author) => (<span key={author}>{author} </span>))}</div>
+                                        )}
+                                        </div>
+                                  </li>
+                                  )
+                                )}
+                                
+                            
+                          </ol>
+                        )}
+                      </div>
+                  </div>
+                </ol>
+              </div>
+            
+            </div>
+        )
+    }
+
+}
+
+export default Search
+
+
+
+------------------------------
+
+
+
+
+/* Technique for conditionally adding attribute from answer by Arman Yeghiazaryan; 
+                                                    https://stackoverflow.com/a/35428331 */
+                                                // {...(this.props.allBooksInPlay.filter(eachBook => eachBook.id === book.id).length === 0 ? 
+                                                //     { onClick: () => this.props.addToallBooksInPlay(book) } : 
+                                                //     {})
+                                                // }
+
+
+
+--------------------------------------------------------------------------------------------------------------------------------------
+
+ListBooks component scraps
+
+   // let currentlyReading = allBooksInPlay.filter(book => book.shelf === "currentlyReading")
+        // let wantToRead = allBooksInPlay.filter(book => book.shelf === "wantToRead")
+        // let read = allBooksInPlay.filter(book => book.shelf === "read")
+
+
+
+
+
+
+
+---------------------------------------------------------------------------
+
+App component scraps
+
+    
+    // let stateToRemoveFrom = this.state[currentShelf]
+
+    let selectTags = Array.from(document.getElementsByTagName('select'));
+function enableSelect () {
+  selectTags.forEach(function(element) {
+      element.removeAttribute('disabled')
+    })
+  }
+
+  window.addEventListener('load', enableSelect())
+
+
+
+    let currentlyReading = books.filter(book => book.shelf === "currentlyReading")
+      let wantToRead = books.filter(book => book.shelf === "wantToRead")
+      let read = books.filter(book => book.shelf === "read")
+
+   this.setState({currentlyReading})
+      this.setState({wantToRead})
+      this.setState({read})
+
+
+-------
+
+ - pushing new data on to state array: answer by Ginden; https://stackoverflow.com/a/37435764
+     - using computed property names when setting state: answer by trad; https://stackoverflow.com/a/29281499 
+     - using filter to remove data from state array: 
+          answer by ephrion; https://stackoverflow.com/a/31838774,
+          entry 'Array.prototype.filter' at MDN; 
+            https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter
+     - using dynamic key value when setting state: answer by Aaron; https://stackoverflow.com/a/46016573
+     - checking if array includes certain object: answer by AlonL; https://stackoverflow.com/a/27819913 */
+
+
+
+-------
+
+
+// let shelfToMoveFrom;
+    // let stateToRemoveFrom;
+
+    // if (bookToMove[0].shelf !== undefined) {
+    //   shelfToMoveFrom = bookToMove[0].shelf
+    // }
+
+    // stateToRemoveFrom = this.state[shelfToMoveFrom]
+
+    // if (newShelf === 'currentlyReading') {
+    //   let checkForExisting = this.state.currentlyReading.filter(book => book.id === bookID)
+    //   if (checkForExisting.length === 0) {
+    //     if (shelfToMoveFrom !== undefined) {
+    //       this.setState({[shelfToMoveFrom] : stateToRemoveFrom.filter(book => book.id !== bookID)})
+    //     }
+    //     bookToMove[0].shelf = 'currentlyReading'
+    //     this.setState({currentlyReading: this.state.currentlyReading.concat(bookToMove)})
+    //   }
+    // } else if (newShelf === 'wantToRead') {
+    //     let checkForExisting = this.state.wantToRead.filter(book => book.id === bookID)
+    //     if (checkForExisting.length === 0) {
+    //       if (shelfToMoveFrom !== undefined) {
+    //         this.setState({[shelfToMoveFrom] : stateToRemoveFrom.filter(book => book.id !== bookID)})
+    //       }
+    //       bookToMove[0].shelf = 'wantToRead'
+    //       this.setState({wantToRead: this.state.wantToRead.concat(bookToMove)})
+    //     }
+    // } else if (newShelf === 'read') {
+    //     let checkForExisting = this.state.read.filter(book => book.id === bookID)
+    //     if (checkForExisting.length === 0) {
+    //       if (shelfToMoveFrom !== undefined) {
+    //         this.setState({[shelfToMoveFrom] : stateToRemoveFrom.filter(book => book.id !== bookID)})
+    //       }
+    //       bookToMove[0].shelf = 'read'
+    //       this.setState({read: this.state.read.concat(bookToMove)})
+    //     }
+    // } else if (newShelf === 'none') {
+    //     let checkForExisting = this.state.allBooksInPlay.filter(book => book.id === bookID)
+    //     if (shelfToMoveFrom !== undefined) {
+    //       this.setState({[shelfToMoveFrom] : stateToRemoveFrom.filter(book => book.id !== bookID)})
+    //     }
+    //     bookToMove[0].shelf = 'none'
+    //     if (checkForExisting.length === 0) {
+    //       this.setState({allBooksInPlay: this.state.allBooksInPlay.concat(bookToMove)})
+    //     }  
+    // }
+
+    -------
+
+        currentlyReading: [],
+    wantToRead: [],
+    read: []
+
+--------
+
+currentlyReading={this.state.currentlyReading}
+              wantToRead={this.state.wantToRead}
+              read={this.state.read}
+
+              let bookToMove = this.state.allBooksInPlay.filter(book => book.id === bookID)
+
+
+// Function to pass to `findIndex`
+const findBookToMove = eachBook => eachBook.id === book.id
+const indexOfBookToMove = this.state.allBooksInPlay.findIndex(findBookToMove)
+
+
+ // addToallBooksInPlay = (book) => {
+  //     this.setState({allBooksInPlay: this.state.allBooksInPlay.concat(book)})
+  // }
